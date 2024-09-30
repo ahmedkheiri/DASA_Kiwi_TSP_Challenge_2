@@ -11,7 +11,7 @@ In this folder, you will find the first two problem instances:
 - `1.in`
 - `2.in`
 
-For more instances, you can download themusing the link provided in the `Instances.txt` file.
+For more instances, you can download them using the link provided in the `Instances.txt` file.
 
 ### 2. Coding
 The main code for running the MCTS algorithm consists of three key files:
@@ -20,13 +20,12 @@ The main code for running the MCTS algorithm consists of three key files:
 - **Node.py**: Implements the node structure used within the MCTS algorithm.
 
 ### 3. Parallelisation Versions
-If you wish to run the MCTS with parallelisation, use the following scripts: **Main_Parallelisation.py** instead of **Main.py**.
+If you wish to run the MCTS with parallelisation, use the following script instead of **Main.py**:
+- **Main_Parallelisation.py**
 
 These scripts can be executed in the same manner as `Main.py`, and they will generate log files containing the steps taken by the MCTS process.
 
 ## How to Run
 
 1. Adjust the parameters of the MCTS algorithm in `Main.py` as needed.
-2. Run the code using the following command:
-   ```bash
-   python Main.py
+2. Run the MCTS file.
