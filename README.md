@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains an implementation of **Monte Carlo Tree Search (MCTS)**. The main codes can be found in the `Coding` folder, with examples of problem instances located in the `Instances` folder.
+This repository contains an implementation of a **Monte Carlo Tree Search (MCTS)** to solve the TSP Challenge 2.0 proposed by Kiwi.com in 2018. The main codes can be found in the `Coding` folder, with examples of problem instances located in the `Instances` folder.
 
 ## Folder Structure
 
