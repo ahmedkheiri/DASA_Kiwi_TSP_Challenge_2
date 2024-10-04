@@ -1,4 +1,3 @@
-import numpy as np
 import random
 from copy import deepcopy
 import logging
@@ -8,11 +7,11 @@ import shutil
 import glob
 import multiprocessing
 
-from Data_Preprocessing import data_preprocessing
-from Node import Node
+from data_preprocessing import DataPreprocessing
+from node import Node
 
 
-class MCTS(data_preprocessing):
+class MCTS(DataPreprocessing):
     def __init__(
         self,
         instance,

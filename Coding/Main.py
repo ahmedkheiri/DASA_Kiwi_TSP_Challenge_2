@@ -1,4 +1,4 @@
-from MCTS import MCTS
+from mcts import MCTS
 
 expansion_policies = ["top_k", "ratio_k"]
 simulation_policies = [
@@ -26,4 +26,3 @@ mcts = MCTS(
     desired_selection_policy=selection_policy[0],
     cp=cp[1],
 )
-

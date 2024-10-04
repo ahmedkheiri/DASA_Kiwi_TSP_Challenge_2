@@ -1,8 +1,4 @@
-import numpy as np
-from copy import deepcopy
-
-
-class data_preprocessing:
+class DataPreprocessing:
     def __init__(self, instance_path):
         self.instance_path = instance_path
 
