@@ -1,0 +1,1240 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+
+\usepackage{url}
+\usepackage{longtable}
+\usepackage{ragged2e, tabularx, makecell, booktabs}
+\usepackage{tikz, bookmark, tcolorbox, qtree, tikz-qtree}
+\usetikzlibrary{shapes.geometric, arrows}
+\usepackage[x11names]{xcolor}
+\usetikzlibrary{positioning, shapes, arrows.meta,decorations.pathmorphing}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\usepackage{multirow}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{A Monte Carlo Tree Search for the
+Optimisation of Flight Connections\\
+{\large Supplementary Materials (This document is prepared by Arnaud as part of his MSc project)}
+}
+
+\author{\IEEEauthorblockN{Arnaud Da Silva\IEEEauthorrefmark{1}, Ahmed Kheiri\IEEEauthorrefmark{1}}
+\IEEEauthorblockA{\IEEEauthorrefmark{1}Lancaster University, Department of Management Science, Lancaster LA1 4YX, UK
+\\ \{a.dasilva, a.kheiri\}@lancaster.ac.uk}}
+
+
+\maketitle
+
+\section{Optimisation in Air Travel}
+
+In this section, we discuss some common challenges faced by airline companies and demonstrate the importance of optimisation in decision-making for the success and competitiveness of airline companies.
+
+\subsection{Fleet Assignment Problem}
+
+The Fleet Assignment Problem (FAP), as discussed in \cite{airline_fleet_assignement}, involves assigning different types of aircraft, to flights based on their capabilities, operational costs, and revenue potential. This decision greatly influences airline revenues and is a vital part of the overall scheduling process. The complexity of FAP is driven by the large number of flights an airline manages daily and its interdependencies with other processes like maintenance and crew scheduling.
+
+\subsection{Crew Scheduling Problem} % (fold)
+
+The Crew Scheduling Problem (CSP), as discussed in \cite{crew_scheduling_problem}, involves assigning crews to a sequence of tasks, each with defined start and end times, with the primary objective of ensuring that all tasks are covered while adhering to regulations on maximum working hours for crew members.
+
+This problem is particularly critical for low-cost airlines, for example in the United Kingdom in 2023, low-cost flights comprise 48\% of the scheduled capacity (total number of seats offered) \cite{lcc_new_norm}, which rely heavily on optimised crew schedules to maintain competitiveness. Efficient crew scheduling is essential not only for low cost carriers and for cost minimisation but also for ensuring operational reliability and flexibility in response to unexpected disruptions \cite{ryanair_youtube_report}.
+
+
+\subsection{Disruption Management} % (fold)
+\label{sub:disruption management}
+
+Disruptions in airline operations, as noted in \cite{disruption_management}, can occur due to various factors, including crew unavailability, delays from air traffic control, weather conditions, or mechanical failures. Given that flight schedules are typically planned months in advance \cite{flight_scheduling}, effective disruption management is crucial to minimise the impact on passengers and overall airline operations.
+
+The two mains drivers of disruption management are aircraft and crew recovery.
+\begin{itemize}
+    \item Aircraft recovery: Optimisation tools help manage the complex logistics of matching available aircraft with rescheduled flights, considering factors like airport availability and maintenance requirements.
+    \item Crew recovery: Optimisation tools are used to adjust crew schedules, taking into account factors such as legal working hours, crew availability, and the need to cover all flights efficiently. These tools help in developing feasible and compliant crew rosters that adapt to the new flight schedules.
+\end{itemize}
+
+These optimisation strategies, supported by advanced software, for instance \cite{inform_software} and \cite{ibs_software}, are crucial for reducing the impact of disruptions and boosting operational resilience in the airline industry.
+
+\subsection{Airline adaptation to new demand} % (fold)
+\label{sub:Airline adaptation to new demand}
+
+Airline companies must continuously adapt their schedules to meet evolving market demands, particularly with the growing dominance of leisure travel over business travel, which has introduced new patterns of demand as shown on Figure \ref{fig:European_demand_seasonality} in Europe. This seasonality poses a challenge for airlines as they have to balance high demand during peak seasons with the risk of underutilisation during off-peak times.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=.2\textwidth]{Figures/European Demand.png}
+    \caption{European demand seasonality \cite{flight_seasonnality_challenges}}
+    \label{fig:European_demand_seasonality}
+\end{figure}
+
+Since travel demand varies throughout the year, airlines use a variety of techniques to achieve operational efficiency while maximising revenue \cite{flight_seasonnality_challenges}. For instances, airlines sell nearly 65\% more seats. To ensure their operations remain efficient during periods of heightened demand, airline companies make the required allowance for additional aircraft and crew by optimisation models that specify priority routes and requirements for additional flights, alongside effective crew rotation management.
+
+In contrast, winter months pose a different type of problem where demand drops, which can potentially lead to underutilisation of aircraft. To manage this, airlines are known to turn to ACMI leasing (agreement between two airlines, where the lessor agrees to provide an aircraft, crew, maintenance and insurance \cite{acmi_def}) during periods of low demand to temporarily reduce fleet size by outsourcing their capacity. Alongside this, they also increase maintenance activities and incentivise crews to take holidays or undergo training to maximise productivity across the operation. Equally, on a year-round basis, airlines apply dynamic pricing algorithms to vary fares in reaction to real-time demand patterns. In high-demand summer months, fares are tactically set so as to maximise revenues from travellers willing to pay more, while in winter, pricing strategies are aimed at stimulating demand with fare reductions to fill seats that otherwise would have gone empty. Such adaptive strategies are critical to the airlines for effectively beating the seasonal ebbs and flows in the travel industry.
+
+%\begin{figure}
+%    \centering
+%    \includegraphics[width=1\textwidth]{Figures/Seasonal margin analysis.png}
+%    \caption{Compared with other sectors, airlines exhibit a significant and growing link between margins and seasons.}
+%    \label{fig:airline_seasonnality_margin}
+%\end{figure}
+
+\section{Travelling Salesman problem and its adaption}
+\label{sec:TSP}
+
+The Travelling Salesman Problem is a well known problem in the Operational Research and Computer Science fields. A simple description of the TSP is to find the best round-trip for a salesman that has to travel around a given number of cities while minimising the overall journey's distance. This problem is characterised as $\mathcal{NP}$-Hard \cite{np_hardness}. This means that there is no known polynomial-time algorithm that can solve all instances of the problem efficiently. Regarding time complexity, if we were to solve it exploring all the possible solutions, the time complexity would have been $\mathcal{O}(\frac{(n-1)!}{2})$ where $n$ represents the number of cities.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.48\textwidth]{Figures/Time_complexities.png}
+    \caption{Time complexity of different functions}
+    \label{fig:time_complexity_comparisons}
+\end{figure}
+
+On Figure \ref{fig:time_complexity_comparisons}, different time complexities are compared and demonstrates that the factorial time complexity is the worst. Therefore, these kinds of $\mathcal{NP}$-Hard problem are typically not solved by exploiting all the search area but using heuristics algorithms. Heuristic solutions do not guarantee to find the absolute optimal solution but can find near-optimal solutions within more reasonable timeframes.
+
+The TSP has been studied extensively, and, many variants can be derived from it:
+
+\begin{itemize}
+    \item Symmetric TSP (STSP): The distance between cities are symmetric, meaning that the distance to travel from city A to city B is the same as from city B to city A. %\cite{STSP}
+    \item Asymmetric TSP (ATSP): The distance between cities are asymmetric, meaning that the distance to travel from city A to city B is different than the distance to travel from city B to city A \cite{ASTP}.
+    \item Multiple TSP (mTSP): Instead of one salesman, multiple salesman are starting from one city, they visit all the cities such that each city is visited exactly once \cite{mTSP}.
+    \item Time Window TSP (TWTSP): Each city has to be visited in a defined time slot \cite{TWTSP}.
+    \item Price-collection TSP (PCTSP): Not all the cities have to be visited, the goal is to minimise the overall traveller's distance while maximising the price collected earned when visiting a city \cite{PCTSP}.
+    \item Stochastic TSP (STSP): The distances between the cities or the cost of travels are stochastic (i.e., random variables) rather than deterministic \cite{Stochastic_TSP}.
+    \item Dynamic TSP (DTSP): The problem can change over time, that means that new cities can be added or distances between cities can change while the salesman has already started his journey \cite{DTSP}.
+    \item Generalised TSP (GTSP): The cities are grouped into clusters, the goal is to visit exactly one city from each cluster \cite{GTSP}.
+    \item Open TSP (OTSP): The traveller does not have to end his journey at the starting city \cite{OTSP}.
+\end{itemize}
+
+Multiple algorithms have been developed to address these TSP variants, we can classify them into two categories:
+
+\begin{itemize}
+    \item \textbf{Exact algorithms}: These algorithms aim to find the optimal solution to the TSP by exploring all possible routes or by using mathematical techniques to prune the search space efficiently.
+          \begin{itemize}
+              \item \textbf{Branch and Bound}: This method systematically explores the set of all possible solutions, using bounds to eliminate parts of the search space that cannot contain the optimal solution. It is often used for smaller instances of TSP \cite{branch_and_bound}.
+              \item \textbf{Cutting planes}: This technique adds constraints (or cuts) to the TSP formulation iteratively to remove infeasible solutions and converge to the optimal solution. This approach is particularly effective for symmetric TSPs \cite{cutting_planes}.
+              \item \textbf{Dynamic Programming}: Introduced by Bellman, this approach breaks down the TSP into subproblems and solves them recursively, and despite its exponential complexity it is highly effective for solving some TSP variants \cite{dynamic_programming_tsp}.
+          \end{itemize}
+    \item \textbf{Heuristic Algorithms}: These algorithms are designed to find near-optimal solutions within a reasonable timeframe, specifically for large-scale problems where exact methods are computationally infeasible.
+          \begin{itemize}
+              \item \textbf{Greedy Algorithms}: These algorithms make a series of locally optimal choices in the hope of finding a global optimum. An example is the Nearest Neighbour algorithm, which selects the nearest unvisited city at each step \cite{greedy}.
+              \item \textbf{Genetic Algorithms}: Inspired by the process of natural selection, these algorithms evolve a population of solutions over time, using operations such as mutation and crossover to explore the solution space \cite{genetic_algorithm}.
+              \item \textbf{Simulated Annealing}: This probabilistic technique searches for a global optimum by allowing worsening moves to be accepted based on a temperature parameter that gradually decreases. It is particularly useful for escaping local optima \cite{simulated_annealing}.
+              \item \textbf{Ant Colony Optimisation}: This metaheuristic is inspired by the foraging behaviour of ants and uses a combination of deterministic and probabilistic rules to construct solutions, which are gradually refined through updates based on pheromone trails \cite{ant_colony}.
+          \end{itemize}
+\end{itemize}
+
+\section{Monte Carlo Tree Search algorithm}
+
+The Monte Carlo Tree Search (MCTS) algorithm can be characterised as less traditional than the methods described in Section \ref{sec:TSP} to solve TSP problems. MCTS and its variants have been successfully implemented across a range of games, such as Havannah \cite{wiki:board_game}, Amazons \cite{wiki:Game_of_the_Amazons}, Lines of Actions \cite{wiki:Lines_of_Action}, Go, Chess, and Shogi \cite{wiki:Shogi}, establishing it as the state-of-the-art algorithm \cite{havannah,amazons,lines_of_actions}. It is widely used in board games and is increasingly popular since Google DeepMind developed AlphaGo. AlphaGo is a software that was created to beat the best Go's player in the world. Go is a board game from China where two players take turns placing black or white stones on a grid. The goal is to capture territory by surrounding empty spaces or the opponent's stones. Despite its simple rules, Go is a complex game, with countless possible moves and strategies. It is known for its balance between intuition and logic, hence why it has been a significant focus of artificial intelligence research \cite{wiki:Go}. In 2016, Lee Sedol \cite{wiki:Lee_Sedol}, the best Go's player in the world was been beaten by AlphaGo 4-1 \cite{alpha_go_documentary}. MCTS with policy and value networks are at the heart of AlphaGo decision-making process, enabling AlphaGo's to pick the optimal moves in the complex search of Go \cite{mcts_alpha_go_algorithm}.
+
+\subsection{Overview}
+
+The MCTS' process is conceptually straightforward. A tree is built in an incremental and asymmetric manner (Figure \ref{fig:Assymetrical_growth_MCTS}).
+For every iteration, a selection policy is used to determine which node to select in the tree to perform simulations. 
+The selection policy, typically balances the exploration  (looking into parts of the tree that have not been visited yet) and the exploitation (looking into parts of the trees that appear to be promising). 
+Once the node is selected, a simulation (a sequence of available actions, based on a simulation policy), is applied from this node until a terminal condition is reached (e.g., no further actions are possible) \cite{mcts_various_policies}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{Figures/assymetric_growth_mcts_tree.png}
+    \caption{Assymetrical growth of MCTS - Simulation and Expansion - \cite{mcts_assymetrical_growth}}
+    \label{fig:Assymetrical_growth_MCTS}
+\end{figure}
+
+
+To ensure a clearer understanding of MCTS algorithm's stages, we will start by exploring a detailed example \cite{example_youtube_mcts}. This example will illustrate each component of the algorithm in action. Furthermore, we will generalise the principles discussed, as the methodology of this paper is built on the application of the MCTS algorithm.
+
+Considering a maximisation problem, when starting a game, the player can choose between two possible actions $a_1$ and $a_2$ from the node $S^{0,0}_0$ in the tree $\mathcal{T}$. 
+Every node is defined like so: $S^{n_i,t_i}_i$ where $n_i$ represents the number of times node $i$ has been visited, $t_i$ the total score of this node.
+Moreover, for every node - a selection metric can be computed, for instance the $UCB$ value: $UCB(S^{n_i,t_i}_i)=\bar{V_i} + 2 \sqrt{\frac{\ln N}{n_i}}$ where $\bar{V_i}=\frac{n_i}{t_i}$ represents the average value of the node, $n_i$ the number of times node $i$ has been visited, $N=n_0$ the number of times the root node has been visited (which is also equal to the number of iterations).
+
+Before the first iteration, $I_{t1}$, none node has been visited - $\forall i \in \mathcal{T}, S^{0,0}_{i}$.
+\begin{figure}
+    \centering
+    \scalebox{0.8}{
+    \begin{tikzpicture}[
+            root_node/.style={circle, draw=orange!60, fill=orange!5, very thick, minimum size=40},
+            visited_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40},
+            unvisited_node/.style={circle, draw=gray!60, fill=gray!5, very thick, minimum size=40},
+            target_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40},
+        ]
+
+        \node[root_node](Root){$S^{0,0}_0$};
+        \node[unvisited_node, below left=of Root](S1){$S^{0,0}_1$};
+        %\node[target_node, below=of S1, yshift=-1.7cm](Target){};
+        \node[unvisited_node, below right=of Root](S2){$S^{0,0}_2$};
+
+        \draw[->] (Root) -- (S1) node[midway, above, xshift=-2mm] {$a_1$};
+        \draw[->] (Root) -- (S2) node[midway, above, xshift=2mm] {$a_2$};
+
+        %\draw[->, very thick, decorate, decoration={snake, amplitude=.7mm, segment length=3mm}] (S1) -- (Target);
+    \end{tikzpicture}
+    }
+    \caption{Selection - $I_{t1}$}
+    \label{fig:Expansion of the tree from the root node}
+\end{figure}
+
+At the beginning of $I_{t1}$, the player has to choose between these two child nodes (or choose between taking $a_1$ or $a_2$). After, the player has to calculate the $UCB$ value for these two nodes and pick the node that maximises the $UCB$ value (as it is a maximisation problem).
+In Figure \ref{fig:Expansion of the tree from the root node}, neither of these have been visited yet so $UCB(S^{0,0}_1)=UCB(S^{0,0}_2)=\infty$. Hence, the player decides to choose randomly $S^{0,0}_1$.
+
+$S^{0,0}_1$ is a leaf node that has not been visited, then a simulation can be done from this node. It means selecting actions from this node based on the simulation policy to a terminal state as shown on Figure \ref{fig:Simulation - $I1$}:
+
+\begin{figure}
+    \centering
+    \scalebox{0.8}{
+    \begin{tikzpicture}[
+            root_node/.style={circle, draw=orange!60, fill=orange!5, very thick, minimum size=40},
+            visited_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40},
+            unvisited_node/.style={circle, draw=gray!60, fill=gray!5, very thick, minimum size=40},
+            target_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40},
+        ]
+
+        \node[root_node](Root){$S^{0,0}_0$};
+        \node[unvisited_node, below left=of Root](S1){$S^{0,0}_1$};
+        \node[target_node, below=of S1, yshift=-1.7cm](Target){20};
+        \node[unvisited_node, below right=of Root](S2){$S^{0,0}_2$};
+
+        \draw[->] (Root) -- (S1) node[midway, above, xshift=-2mm] {$a_1$};
+        \draw[->] (Root) -- (S2) node[midway, above, xshift=2mm] {$a_2$};
+
+        \draw[->, very thick, decorate, decoration={snake, amplitude=.7mm, segment length=3mm}] (S1) -- (Target);
+    \end{tikzpicture}
+    }
+    \caption{Simulation - $I_{t1}$}
+    \label{fig:Simulation - $I1$}
+\end{figure}
+
+The terminal state has a value of 20, we can write that the rollout/simulation from node $S^{0,0}_1$ is $\mathcal{R}(S^{0,0}_1)=20$ . The final step of $I_{t1}$ is backpropagation. Every node that has been visited in the iteration is updated.
+Let $\mathcal{N}_{\mathcal{R},j}$ be the indices of the nodes visited during the $j-th$ iteration of the MCTS:
+\begin{itemize}
+    \item Before backpropagation:
+          \begin{equation}
+              \forall i \in \mathcal{N}_{\mathcal{R},j}, S^{n_i,t_i}_{i,old}
+          \end{equation}
+
+    \item After backpropagation:
+          \begin{equation}
+              \forall i \in \mathcal{N}_{\mathcal{R},j}, S^{n_i+1,t_i+\mathcal{R}(S^{n_i,t_i}_{i,old})}_{i,new}
+          \end{equation}
+\end{itemize}
+
+We can then define a backpropagation function:
+\begin{center}
+    \centering
+    $\begin{array}{ccccc}
+            \mathcal{B} & : & \mathcal{N}_{\mathcal{R},j} & \to     & \mathcal{N}_{\mathcal{R},j}                    \\
+                        &   & S^{n_i,t_i}_{i}             & \mapsto & S^{n_i+1,t_i+\mathcal{R}(S^{n_i,t_i}_{i})}_{i} \\
+        \end{array}$
+\end{center}
+
+Then, back to the example on Figure \ref{fig:Backpropagation_I1}, the player updates the visited nodes: $\mathcal{B}(S^{0,0}_1)=S^{\mathbf{1},\mathbf{20}}_1$ and $\mathcal{B}(S^{0,0}_0)=S^{\mathbf{1},\mathbf{20}}_0$.
+\begin{figure}
+    \centering
+    \scalebox{0.8}{
+    \begin{tikzpicture}[
+            root_node/.style={circle, draw=orange!60, fill=orange!5, very thick, minimum size=40},
+            visited_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40},
+            unvisited_node/.style={circle, draw=gray!60, fill=gray!5, very thick, minimum size=40},
+            target_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40}
+        ]
+
+        \node[root_node](Root){$S^{\mathbf{1},\mathbf{20}}_0$};
+        \node[unvisited_node, below left=of Root](S1){$S^{\mathbf{1},\mathbf{20}}_1$};
+        \node[target_node, below=of S1, yshift=-1.7cm](Target){20};
+        \node[unvisited_node, below right=of Root](S2){$S^{0,0}_2$};
+
+        \draw[->] (Root) -- (S1) node[midway, above, xshift=-2mm] {$a_1$};
+        \draw[->] (Root) -- (S2) node[midway, above, xshift=2mm] {$a_2$};
+
+        \draw[->, very thick, decorate, decoration={snake, amplitude=.7mm, segment length=3mm}] (Target) -- (S1);
+    \end{tikzpicture}
+    }
+    \caption{Backpropagation - $I_{t1}$}
+    \label{fig:Backpropagation_I1}
+\end{figure}
+
+The fourth phase of the algorithm has been done for $I_{t1}$. Therefore, the player can start the $2^{nd}$ iteration of the MCTS, $I_{t2}$.
+
+\begin{figure}
+    \centering
+    \scalebox{0.7}{
+    \begin{tikzpicture}[
+            root_node/.style={circle, draw=orange!60, fill=orange!5, very thick, minimum size=40},
+            visited_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40},
+            unvisited_node/.style={circle, draw=gray!60, fill=gray!5, very thick, minimum size=40},
+            target_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40}
+        ]
+
+        \node[root_node](Root){$S^{1,20}_0$};
+        \node[unvisited_node, below left=of Root](S1){$S^{1,20}_1$};
+        %\node[target_node, below=of S1, yshift=-1.7cm](Target){20};
+        \node[unvisited_node, below right=of Root](S2){$\mathbf{S^{0,0}_2}$};
+
+        \node[right=2cm of S2, anchor=west] (UCB) {$UCB(S^{1,20}_1)=20+2 \sqrt{\frac{\ln1}{1}} = 20$};
+        \node[below=0.55cm of UCB, anchor=south] (UCB2) {$UCB(S^{0,0}_2)=\infty$};
+
+        \draw[->] (Root) -- (S1) node[midway, above, xshift=-2mm] {$a_1$};
+        \draw[->] (Root) -- (S2) node[midway, above, xshift=2mm] {$a_2$};
+
+        %\draw[->, very thick, decorate, decoration={snake, amplitude=.7mm, segment length=3mm}] (S1) -- (Target);
+    \end{tikzpicture}
+    }
+    \caption{Selection - $I_{t2}$}
+    \label{fig:Selection - I2}
+\end{figure}
+
+On Figure \ref{fig:Selection - I2}, the player can either choose $a_1$ or $a_2$. When a child node has not been visited yet, the player picks this node for the Selection iteration, or they can compute the $UCB$ value, it leads to the same conclusion.
+
+\begin{figure}
+    \centering
+    \scalebox{0.8}{
+    \begin{tikzpicture}[
+            root_node/.style={circle, draw=orange!60, fill=orange!5, very thick, minimum size=40},
+            visited_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40},
+            unvisited_node/.style={circle, draw=gray!60, fill=gray!5, very thick, minimum size=40},
+            target_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40},
+        ]
+
+        \node[root_node](Root){$S^{\mathbf{2},\mathbf{30}}_0$};
+        \node[unvisited_node, below left=of Root](S1){$S^{1,20}_1$};
+
+        \node[unvisited_node, below right=of Root](S2){$S^{\mathbf{1},\mathbf{10}}_2$};
+        \node[target_node, below=of S2, yshift=-1.7cm](Target){10};
+
+        \draw[->] (Root) -- (S1) node[midway, above, xshift=-2mm] {$a_1$};
+        \draw[->] (Root) -- (S2) node[midway, above, xshift=2mm] {$a_2$};
+
+        \draw[->, very thick, decorate, decoration={snake, amplitude=.7mm, segment length=3mm}] (S2) -- (Target);
+    \end{tikzpicture}
+    }
+    \caption{Simulation and Backpropagation - $I_{t2}$}
+    \label{fig:Simulation and Backpropagation - I2}
+\end{figure}
+
+
+A simulation is executed (Figure \ref{fig:Simulation and Backpropagation - I2}) from the chosen node $S^{0,0}_{2}$ and $\mathcal{R}(S^{0,0}_{2})=10$ and then the outcome is backpropagated to all the visited nodes: $\mathcal{B}(S^{0,0}_{2})=S^{1,10}_{2}$ and $\mathcal{B}(S^{1,20}_{0})=S^{2,30}_{0}$. Next, $I_{t3}$ starts, based on the $UCB$ score, the player chooses $a_1$.
+
+\begin{figure}
+    \centering
+    \scalebox{0.8}{
+    \begin{tikzpicture}[
+            root_node/.style={circle, draw=orange!60, fill=orange!5, very thick, minimum size=40},
+            visited_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40},
+            unvisited_node/.style={circle, draw=gray!60, fill=gray!5, very thick, minimum size=40},
+            target_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40},
+        ]
+
+        \node[root_node](Root){$S^{2,30}_0$};
+        \node[unvisited_node, below left=of Root](S1){$S^{1,20}_1$};
+
+        \node[unvisited_node, below right=of Root](S2){$S^{1,10}_2$};
+        %\node[target_node, below=of S2, yshift=-1.7cm](Target){10};
+        \node[right=5mm of S2, anchor=west, yshift=2mm] (UCB) {$UCB(S^{1,20}_1)=\mathbf{21.67}$};
+        \node[below=0.55cm of UCB, anchor=south] (UCB2) {$UCB(S^{1,10}_2)=11.67$};
+
+        \draw[->] (Root) -- (S1) node[midway, above, xshift=-2mm] {$a_1$};
+        \draw[->] (Root) -- (S2) node[midway, above, xshift=2mm] {$a_2$};
+
+        %\draw[->, very thick, decorate, decoration={snake, amplitude=.7mm, segment length=3mm}] (S2) -- (Target);
+    \end{tikzpicture}
+    }
+    \caption{Selection - $I_{t3}$}
+    \label{fig:Selection - I3}
+\end{figure}
+
+
+$S^{1,20}_{1}$ is a leaf node and has been visited, this node can be expanded.
+
+\begin{figure}
+\scalebox{0.8}{
+    \begin{tikzpicture}[
+            root_node/.style={circle, draw=orange!60, fill=orange!5, very thick, minimum size=40},
+            visited_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40},
+            unvisited_node/.style={circle, draw=gray!60, fill=gray!5, very thick, minimum size=40},
+            target_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40},
+        ]
+
+        \node[root_node](Root){$S^{3,30}_0$};
+        \node[unvisited_node, below left=of Root](S1){$S^{2,20}_1$};
+        \node[unvisited_node, below right=of Root](S2){$S^{1,10}_2$};
+        \node[unvisited_node, below left=of S1](S3){$S^{1,0}_3$};
+        \node[unvisited_node, below right=of S1](S4){$S^{0,0}_4$};
+
+        \node[left=8mm of S1, anchor=east] (UCB) {$UCB(S^{2,20}_1)=11.48$};
+        \node[below=0.55cm of UCB, anchor=south] (UCB2) {$UCB(S^{1,10}_2)=\mathbf{12.10}$};
+
+        %\node[target_node, below=of S3, yshift=-1.7cm](Target){0};
+
+        \draw[->] (Root) -- (S1) node[midway, above, xshift=-2mm] {$a_1$};
+        \draw[->] (Root) -- (S2) node[midway, above, xshift=2mm] {$a_2$};
+        \draw[->] (S1) -- (S3)   node[midway, above, xshift=-2mm] {$a_3$};
+        \draw[->] (S1) -- (S4)   node[midway, above, xshift=2mm] {$a_4$};
+        %\draw[->, very thick, decorate, decoration={snake, amplitude=.7mm, segment length=3mm}] (S3) -- (Target);
+    \end{tikzpicture}
+    }
+    \caption{Selection and Expansion - $I_{t3}$}
+\end{figure}
+
+Based on $UCB$ score, a simulation is done from $S^{0,0}_3$ on Figure \ref{fig:Simulation and Backpropagation - I3}.
+
+\begin{figure}
+    \centering
+    \scalebox{0.8}{
+    \begin{tikzpicture}[
+            root_node/.style={circle, draw=orange!60, fill=orange!5, very thick, minimum size=40},
+            visited_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40},
+            unvisited_node/.style={circle, draw=gray!60, fill=gray!5, very thick, minimum size=40},
+            target_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40},
+        ]
+
+        \node[root_node](Root){$S^{\mathbf{3},30}_0$};
+        \node[unvisited_node, below left=of Root](S1){$S^{\mathbf{2},20}_1$};
+        \node[unvisited_node, below right=of Root](S2){$S^{\mathbf{2},10}_2$};
+        \node[unvisited_node, below left=of S1](S3){$S^{\mathbf{1},0}_3$};
+        \node[unvisited_node, below right=of S1](S4){$S^{0,0}_4$};
+
+        \node[target_node, below=of S3, yshift=-1.7cm](Target){0};
+
+        \draw[->] (Root) -- (S1) node[midway, above, xshift=-2mm] {$a_1$};
+        \draw[->] (Root) -- (S2) node[midway, above, xshift=2mm] {$a_2$};
+        \draw[->] (S1) -- (S3)   node[midway, above, xshift=-2mm] {$a_3$};
+        \draw[->] (S1) -- (S4)   node[midway, above, xshift=2mm] {$a_4$};
+        \draw[->, very thick, decorate, decoration={snake, amplitude=.7mm, segment length=3mm}] (Target) -- (S3);
+    \end{tikzpicture}
+    }
+    \caption{Simulation and Backpropagation - $I_{t3}$}
+    \label{fig:Simulation and Backpropagation - I3}
+\end{figure}
+
+
+This is the fourth iteration, $I_{t4}$ represented on Figure \ref{fig:Selection - Simulation - Backpropagation - I4}.
+
+\begin{figure}
+    \centering
+    \scalebox{0.8}{
+    \begin{tikzpicture}[
+            root_node/.style={circle, draw=orange!60, fill=orange!5, very thick, minimum size=40},
+            visited_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40},
+            unvisited_node/.style={circle, draw=gray!60, fill=gray!5, very thick, minimum size=40},
+            target_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40},
+        ]
+
+        \node[root_node](Root){$S^{\mathbf{4,44}}_0$};
+        \node[unvisited_node, below left=of Root](S1){$S^{2,20}_1$};
+        \node[unvisited_node, below right=of Root](S2){$S^{\mathbf{2},\mathbf{24}}_2$};
+        \node[unvisited_node, below left=of S1](S3){$S^{1,0}_3$};
+        \node[unvisited_node, below=of S1](S4){$S^{0,0}_4$};
+        \node[unvisited_node, below left=of S2](S5){$S^{\mathbf{1},\mathbf{14}}_5$};
+        \node[unvisited_node, below right=of S2](S6){$S^{0,0}_6$};
+
+
+        \node[target_node, below=of S5, yshift=-1.7cm](Target){14};
+
+
+        \draw[->] (Root) -- (S1) node[midway, above, xshift=-2mm] {$a_1$};
+        \draw[->] (Root) -- (S2) node[midway, above, xshift=2mm] {$a_2$};
+        \draw[->] (S1) -- (S3)   node[midway, above, xshift=-2mm] {$a_3$};
+        \draw[->] (S1) -- (S4)   node[midway, above, xshift=3mm] {$a_4$};
+        \draw[->] (S2) -- (S5) node[midway, above, xshift=-2mm] {$a_5$};
+        \draw[->] (S2) -- (S6) node[midway, above, xshift=2mm] {$a_6$};
+
+        \draw[->, very thick, decorate, decoration={snake, amplitude=.7mm, segment length=3mm}] (S5) -- (Target);
+
+
+
+
+    \end{tikzpicture}
+    }
+    \caption{Selection - Simulation - Backpropagation - $I_{t4}$}
+    \label{fig:Selection - Simulation - Backpropagation - I4}
+\end{figure}
+
+The MCTS algorithm can either be stopped because the player is running out of time or because the player has no more available actions in the game. For instance, if they were to stop at this stage of the algorithm, the best action to undertake is $a_2$ because it has the higher average value: $\bar{V_1}=\frac{20}{2} \le \bar{V_2}=\frac{24}{2}$.
+
+\subsection{The different parameters in the MCTS}
+\label{sub:selection_policies_litterature}
+
+As outlined in the previous example, node's selection is crucial in the MCTS process and can significantly influence the performance of the algorithm.
+The selection function traditionally used is the Upper Confidence Bound 1 (UCB). However, there are a lot of different MCTS' selection functions as mentioned in this survey \cite{different_selection_policies}. Most of the selection function, are based on the upper confidence bound principle, which balances the dual aspect of exploration and exploitation in the tree search.
+
+The UCB and its variants, the UCB1-Tuned, are defined as follow:
+
+\begin{equation}
+    UCB = \overline{X}_i + C_p \sqrt{\frac{2 \ln N}{n_i}}
+    \label{eq:UCB}
+\end{equation}
+
+\begin{equation}
+    UCB\text{-Tuned} = \overline{X}_i + \sqrt{\frac{\ln N}{n_i} \min\left(\frac{1}{4}, \mathrm{Var}(X_i) + \sqrt{\frac{2 \ln N}{n_i}}\right)}
+    \label{eq:UCB1T}
+\end{equation}
+
+Where:
+\begin{itemize}
+    \item \( \overline{X}_i \): Average reward of node \( i \).
+    \item \( N \): Total number of visits to the root node.
+    \item \( n_i \): Number of visits to node \( i \).
+    \item \( C_p \): Exploration parameter.
+    \item \( \mathrm{Var}(X_i) \): Variance of the rewards at node \( i \), representing the variability of the rewards.
+\end{itemize}
+
+The UCB balances its exploration with the coefficient $C_p$, empirically $C_p=\sqrt2$. The term \( C_p \sqrt{\frac{2 \ln N}{n_i}} \) adds a confidence interval to the average reward, which encourages exploring less-visited nodes when $C_p>0$. When $C_p=0$, the tree search explores less but exploits more of the known part that seems promising for the problem in the tree.
+The UCB1-Tuned balances its exploration with \( \min\left(\frac{1}{4}, \mathrm{Var}(X_i) + \sqrt{\frac{2 \ln N}{n_i}}\right) \), making the UCB1-Tuned more adaptable to environments with varying reward distributions. The $C_p$ coefficient can also be considered in the UCB1-Tuned's formula. Hence in stochastic environments the UCB1-Tuned is more likely to have a better overall performance.
+
+Other selection policies, such as the Beta policy or Single Player MCTS \cite{different_selection_policies}, also play significant roles in various applications of the Monte Carlo Tree Search. However, these policies will not be the focus of this study due to their probabilistic nature, which does not align well with our specific problem context.
+
+
+\subsection{Parallelisation}
+\label{sub:parralelisation}
+
+In computer science, parallelisation is a technique that divides a number of tasks into sub-tasks that can be both, independently and simultaneously run on mutiple cores of a computer.
+Due to the nature of the MCTS and its four phases, this algorithm is a good candidate for parallelisation.
+
+For instance, after selecting a node to explore, rather than conducting a single simulation based on the one simulation policy, you can either run simulations using multiple different simulation policies and select the best outcome, or perform multiple simulations using the same policy (if it is stochastic). 
+Then, going back to the fourth iteration of our example in Figure \ref{fig:Selection - Simulation - Backpropagation - I4}, if we parallelise simulations on three cores then instead of having $\mathcal{R}(S^{0,0}_{5})=14$ you have a list of simulation results $\mathcal{R}(S^{0,0}_{5})=(\mathcal{R}_1(S^{0,0}_{5}),\mathcal{R}_2(S^{0,0}_{5}),\mathcal{R}_3(S^{0,0}_{5}))=(13,14,25)$ and one decision policy could be to pick the maximum of this simulation, hence $\max(\mathcal{R}(S^{0,0}_{5}))=\mathcal{R}_3(S^{0,0}_{5})=25$.
+
+\begin{figure}
+    \centering
+    \scalebox{0.8}{
+    \begin{tikzpicture}[
+            root_node/.style={circle, draw=orange!60, fill=orange!5, very thick, minimum size=40},
+            visited_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40},
+            unvisited_node/.style={circle, draw=gray!60, fill=gray!5, very thick, minimum size=40},
+            target_node/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=40},
+        ]
+
+        \node[root_node](Root){$S^{\mathbf{4,55}}_0$};
+        \node[unvisited_node, below left=of Root](S1){$S^{2,20}_1$};
+        \node[unvisited_node, below right=of Root](S2){$S^{\mathbf{2},\mathbf{35}}_2$};
+        \node[unvisited_node, below left=of S1](S3){$S^{1,0}_3$};
+        \node[unvisited_node, below=of S1](S4){$S^{0,0}_4$};
+        \node[unvisited_node, below left=of S2](S5){$S^{\mathbf{1},\mathbf{25}}_5$};
+        \node[unvisited_node, below right=of S2](S6){$S^{0,0}_6$};
+
+
+        \node[target_node, below=of S5, yshift=-1.7cm](Target){14};
+        \node[target_node, right=of Target](Target2){13};
+        \node[target_node, left=of Target](Target3){$\mathbf{25}$};
+
+        \draw[->] (Root) -- (S1) node[midway, above, xshift=-2mm] {$a_1$};
+        \draw[->] (Root) -- (S2) node[midway, above, xshift=2mm] {$a_2$};
+        \draw[->] (S1) -- (S3)   node[midway, above, xshift=-2mm] {$a_3$};
+        \draw[->] (S1) -- (S4)   node[midway, above, xshift=3mm] {$a_4$};
+        \draw[->] (S2) -- (S5) node[midway, above, xshift=-2mm] {$a_5$};
+        \draw[->] (S2) -- (S6) node[midway, above, xshift=2mm] {$a_6$};
+
+        \draw[->, very thick, decorate, decoration={snake, amplitude=.7mm, segment length=3mm}] (S5) -- (Target);
+        \draw[->, very thick, decorate, decoration={snake, amplitude=.7mm, segment length=3mm}] (S5) -- (Target2);
+        \draw[->, very thick, decorate, decoration={snake, amplitude=.7mm, segment length=3mm}] (S5) -- (Target3);
+
+    \end{tikzpicture}
+    }
+    \caption{Example of parrelisation- $I_{t4}$}
+    \label{fig:Selection - Simulation - Backpropagation - I4 - P}
+\end{figure}
+
+Multiple parallelisation can be applied in the MCTS. For instance, the multi-tree MCTS aims to build parallelised tree from the root node or the leaf parallelisation where multiple simulations are executed at the same time to get better estimates of the node's value (what is done on Figure \ref{fig:Selection - Simulation - Backpropagation - I4 - P}). However, too many modifications of the MCTS can be unproductive and lead to worst results \cite{different_selection_policies}.
+
+\tikzset{class/.style={rectangle, draw=green!60, fill=green!5, very thick, minimum size=20},
+    method/.style={rectangle, draw=yellow!60, fill=yellow!5, very thick, minimum size=20},
+    attributes/.style={rectangle, draw=blue!60, fill=blue!5, very thick, minimum size=20},
+    instance/.style={rectangle, draw=orange!60, fill=orange!5, very thick, minimum size=20}
+}
+
+\section{Monte Carlo Tree Search implementation}
+\subsection{General flow}
+
+The flow of the Monte Carlo Tree Search algorithm is summarised in Figure \ref{fig:Flow MCTS}.
+
+\begin{figure}
+    \centering
+    \scalebox{0.7}{
+    \begin{tikzpicture}[
+            startstop/.style={ellipse, minimum width=3cm, minimum height=1cm, text centered, draw=black},
+            process/.style={rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black},
+            decision/.style={rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, decorate, decoration={zigzag,segment length=2,amplitude=1}},
+            arrow/.style={thick,->,>=stealth},
+            node distance=2cm
+        ]
+
+        \node (start) [startstop] {start};
+        \node (current) [process, below of=start] {Node = $S_0$};
+        \node (decision1) [decision, below of=current, yshift=-0.5cm] {is Node a leaf node?};
+        \node (ucb1) [process, below of=decision1, yshift=-1cm, align=center] {Node = child node of Node \\ that minimises the \\ chosen selection function};
+        \node (decision2) [decision, right of=decision1, xshift=4cm] {Has Node been visited};
+        \node (expand) [process, below of=decision2, yshift=-1cm, align=center] {For each available action\\ from Node, add a new \\ state to the tree};
+        \node (firstChild) [process, below of=expand] {Node = random new child node};
+        \node (rollout1) [process, below of=firstChild] {ROLLOUT - simulation policy};
+        \node (rollout2) [process, above of=decision2] {ROLLOUT - simulation policy};
+
+        \draw [arrow] (start) -- (current);
+        \draw [arrow] (current) -- (decision1);
+        \draw [arrow] (decision1) -- node[anchor=east] {no} (ucb1);
+        \draw [arrow] (ucb1) -- (decision1);
+        \draw [arrow] (decision1) -- node[anchor=south] {yes} (decision2);
+        \draw [arrow] (decision2) -- node[anchor=east] {yes} (expand);
+        \draw [arrow] (decision2) -- node[anchor=east] {no} (rollout2);
+        \draw [arrow] (expand) -- (firstChild);
+        \draw [arrow] (ucb1.west) -- ++(-1,0) |- (decision1.west);
+        \draw [arrow] (firstChild) -- (rollout1);
+
+    \end{tikzpicture}
+    }
+    \caption{Flow MCTS}
+    \label{fig:Flow MCTS}
+\end{figure}
+
+For every iteration of this algorithm, there are four different phases:
+
+\begin{enumerate}
+    \item \textbf{Selection:} Starting from the root node (the starting airport $S_{i0}$ for $I_{i}$), select successive child nodes (airports that are in unvisited areas) until a leaf node (the airport in the initial area, not necessarily the starting airport) is reached. Use the chosen Selection function to evaluate which node is the most promising. In the illustrative example, the UCB1 (also called UCB) function was used for the selection function. Furthermore, the problem's goal was to maximise the objective function, hence the nodes with the highest UCB1 value was selected. However, in Kiwi's minimisation problem,  nodes are evaluated based on the lowest value of the selection function.
+
+    \item \textbf{Expansion:} If the selected node is not a terminal node, expand the tree by adding all possible child nodes.
+
+    \item \textbf{Simulation:} From the newly added node, perform a simulation (based on the simulation policy) until a feasible terminal node is reached.
+
+    \item \textbf{Backpropagation:} Update the values of the nodes along the path from the newly added node to the root based on the result of the simulation.
+
+          \begin{equation}
+              \mathcal{B}(S^{n_i,t_i}_i) = S^{n_i+1,t_i+\mathcal{R}(S^{n_i,t_i}_i)}_i
+          \end{equation}
+
+          where $\mathcal{R}(S^{n_i,t_i}_i)$ is the cost of the solution found after performing a simulation from node $S^{n_i,t_i}_i$.
+\end{enumerate}
+
+\subsubsection{Data Preprocessing}
+
+To implement our MCTS' solution, the first thing to create is a DataPreprocessing \tikz[baseline=(class.base)]{\node[class] (class) {class};} to prepare the given instance to the problem at hand. 
+Kiwi's challenge is solved using Python 3.10 on VS Code 1.92.2. Our Python code is structured using object-oriented programming following CamelCase's convention \cite{camel_case}. This DataPreprocessing class is represented on Figure \ref{fig:data_preprocessing_class}. The input is an \tikz[baseline=(instance.base)]{\node[instance] (instance) {instance};} $I_i$.
+
+\begin{figure}
+    \centering
+    \scalebox{0.7}{
+    \begin{tikzpicture}[
+            class/.style={rectangle, draw=green!60, fill=green!5, very thick, minimum size=40},
+            methods/.style={rectangle, draw=yellow!60, fill=yellow!5, very thick, minimum size=40},
+            attributes/.style={rectangle, draw=blue!60, fill=blue!5, very thick, minimum size=40},
+            instance/.style={rectangle, draw=orange!60, fill=orange!5, very thick, minimum size=40}
+        ]
+
+        %Nodes  
+        \node[instance]          (Instance){$I_i = (N_i, S_{i0}, A_{i}, F_{i})$};
+        \node[class]             (Class)[below=of Instance]{DataPreprocessing};
+
+        \node[attributes, left=of  Class , yshift=-40] (Attr1) {$N_i$};
+        \node[attributes, left=of  Class , yshift=-90] (Attr2) {$S_{i0}$};
+        \node[attributes, left=of  Class , yshift=-140] (Attr3) {flights\_by\_day\_dict};
+        \node[attributes, left=of  Class, yshift=-190] (Attr4) {airports\_by\_area};
+        \node[attributes, left=of  Class, yshift=-240] (Attr5) {area\_by\_airport};
+        %\node[methods, left=of Class, yshift=-290, align=center] (Meth10) {flights\_from\_airport\_at\_a\_\\specific\_day\_with\_previous\_areas};
+        \node[methods, left=of Class, yshift=-290, align=center] (Meth10) {specific\_flights};
+
+
+        \node[methods, right=of  Class, yshift=-40] (Meth1) {read\_file};
+        \node[methods, right=of  Class, yshift=-90] (Meth2) {flights\_by\_day};
+        \node[methods, right=of  Class, yshift=-140] (Meth3) {flights\_from\_airport};
+        \node[methods, right=of  Class, yshift=-190] (Meth4) {associated\_area\_to\_airport};
+        \node[methods, right=of  Class, yshift=-240] (Meth5) {get\_cost};
+        \node[methods, right=of  Class, yshift=-290] (Meth6) {get\_airports\_by\_areas};
+        \node[methods, below=of  Class, yshift=-220] (Meth7) {remove\_duplicate};
+
+        %Lines
+        \draw[->, very thick] (Instance.south)  to node[midway, right] {} (Class.north);
+
+        \draw[->] (Class.south) to[out=180, in=0] (Attr1.east);
+        \draw[->] (Class.south) to[out=190, in=0] (Attr2.east);
+        \draw[->] (Class.south) to[out=200, in=0] (Attr3.east);
+        \draw[->] (Class.south) to[out=210, in=0] (Attr4.east);
+        \draw[->] (Class.south) to[out=220, in=0] (Attr5.east);
+
+        % Arrows from Class to Methods (right side)
+        \draw[->] (Class.south) to[out=0, in=180] (Meth1.west);
+        \draw[->] (Class.south) to[out=350, in=180] (Meth2.west);
+        \draw[->] (Class.south) to[out=340, in=180] (Meth3.west);
+        \draw[->] (Class.south) to[out=330, in=180] (Meth4.west);
+        \draw[->] (Class.south) to[out=320, in=180] (Meth5.west);
+
+        \draw[->] (Class.south) to[out=-115, in=30] (Meth10.east);
+        \draw[->] (Class.south) to[out=-65, in=150] (Meth6.west);
+        \draw[->] (Class.south) to[out=-90, in=90] (Meth7.north);
+    \end{tikzpicture}
+    }
+    \caption{Explanation of the data preprocessing class}
+    \label{fig:data_preprocessing_class}
+\end{figure}
+
+Different useful \tikz[baseline=(methods.base)]{\node[method] (methods) {methods};} are implemented within this class to compute and manage various attributes required for the problem at hand. These methods are designed to prepare and structure the data, making it easier to use in subsequent phases of the algorithm. 
+For example, the remove\_duplicate method ensures that only the cheapest flight connections are considered between two airports if multiple flight connections exist at different prices, on the same day. 
+Other methods, such as flights\_by\_day\_dict and get\_airports\_by\_areas organise the data. The first method regroups all the flights by their respective days, creating a dictionary where each key represents a day and its corresponding value is a list of available flights. The second method regroups all the airports present in the different areas.
+
+Finally, other methods, such as specific\_flights, will be useful for developing the MCTS' algorithm. These give all the possible flight connections from a specific airport on a given day, taking into account the areas visited, so that all possible actions can be obtained from a node.
+
+Given that Python is relatively slower than other programming languages, in terms of computation, dictionaries are used where possible. Dictionaries allow for efficient data retrieval based on a key, with an average time complexity of $\mathcal{O}(1)$. This choice improves the performance of the data preprocessing step, enabling the algorithm to run more efficiently despite Python’s inherent limitations.
+
+\subsubsection{Node}
+\label{subsub:node}
+\begin{figure}[h]
+    \centering
+    \scalebox{0.8}{
+    \begin{tikzpicture}[
+            class/.style={rectangle, draw=green!60, fill=green!5, very thick, minimum size=40},
+            methods/.style={rectangle, draw=yellow!60, fill=yellow!5, very thick, minimum size=40},
+            attributes/.style={rectangle, draw=blue!60, fill=blue!5, very thick, minimum size=40},
+            instance/.style={rectangle, draw=orange!60, fill=orange!5, very thick, minimum size=40}
+        ]
+
+        \node[class]             (Class){\phantom{-----}Node\phantom{-----}};
+
+        \node[attributes, left=of  Class , yshift=-40] (Attr1) {state};
+        \node[attributes, left=of  Class , yshift=-90] (Attr2) {parent};
+        \node[attributes, left=of  Class , yshift=-140] (Attr3) {children};
+        \node[attributes, left=of  Class, yshift=-190] (Attr4) {visit\_count};
+
+        \node[methods, right=of  Class, yshift=-40] (Meth1) {add\_child};
+        \node[methods, right=of  Class, yshift=-90] (Meth2) {delete\_node};
+        \node[methods, right=of  Class, yshift=-140] (Meth3) {best\_child};
+        \node[methods, right=of  Class, yshift=-190] (Meth4) {update};
+
+        \node[attributes, below=of  Class, yshift=-120] (Meth5) {total\_cost};
+
+
+        \draw[->] (Class.south) to[out=180, in=0] (Attr1.east);
+        \draw[->] (Class.south) to[out=190, in=0] (Attr2.east);
+        \draw[->] (Class.south) to[out=200, in=0] (Attr3.east);
+        \draw[->] (Class.south) to[out=210, in=0] (Attr4.east);
+
+        \draw[->] (Class.south) to[out=0, in=180] (Meth1.west);
+        \draw[->] (Class.south) to[out=350, in=180] (Meth2.west);
+        \draw[->] (Class.south) to[out=340, in=180] (Meth3.west);
+        \draw[->] (Class.south) to[out=330, in=180] (Meth4.west);
+
+        \draw[->] (Class.south) to[out=-90, in=90] (Meth5.north);
+
+    \end{tikzpicture}
+    }
+    \caption{Explanation of the Node class}
+    \label{fig:node_class}
+\end{figure}
+
+A Node structure is used in the algorithm, hence the implementation of a Node class. 
+Each Node has a reference to a parent node (unless it is the root node) and may have one or more child nodes (unless it is a leaf node). These relationships form a tree structure where each node can expand into potential future states, guiding the search process. 
+The visit\_count tracks the number of times a node has been visited during the MCTS process. This is crucial for evaluating the node's importance and for calculating the score of the node with the selection function. 
+The state is a dictionary that contains the node's current information:
+\begin{itemize}
+    \item current\_airport: The airport where the traveller is  at this node.
+    \item current\_day: The day of the trip at this node.
+    \item remaining\_zones: The zones that still need to be visited to complete the journey.
+    \item visited\_zones: The zones that have already been visited to ensure that all zones are visited exactly once during the trip.
+    \item total\_cost: It represents the accumulated cost of the current solution path leading to this node.
+\end{itemize}
+
+Additionally, to manage the expansion of child nodes, the add\_child method is defined. 
+This method generates new nodes based on the possible actions available from the current node. These new nodes represent the next possible states in the traveller’s journey, allowing the search tree to expand and explore different travel routes. 
+Finally, the delete\_node method can be used to delete a node from the list of its parent's children. 
+
+
+
+\section{The different policies}
+
+In the previous section, we outlined the general flow of the MCTS algorithm, focusing on two cores classes, DataPreprocessing and Node, that are central in MCTS' implementation.
+
+In Section \ref{sub:selection_policies_litterature}, we explored the various selection policies that guide the decision-making process within the MCTS
+Although there is a limited literature review, we decided to parameterise not only the selection policy but also the simulation and expansion policies.
+
+\subsection{Simulation policies}
+\label{sub:simulation_policies}
+When a simulation is run from a given node in the tree, the goal is to find a feasible combination of airports that could be a solution to our problem.
+From this node chosen for the simulation, we obtain the current state (defined in section \ref{subsub:node}). The remaining actions must then be chosen to find a simulated solution based on the simulation policy.
+
+Below is the definition of the three distinct simulation policies:
+
+\begin{itemize}
+    \item Random policy: This policy selects a random action from the set of available actions, introducing variability and exploration in the simulation process.
+    \item Greedy policy: This policy selects the action that corresponds to the cheapest available flight connection, thus prioritising cost minimisation at each step.
+
+    \item Tolerance policy (with coefficient $c$):
+          This policy selects an action randomly from a subset of actions that are within a certain tolerance level of the minimum cost action. The tolerance level is defined by a coefficient $c$. The tolerance policy is defined as follows:
+          \begin{itemize}
+              \item Identify the cheapest flight connection among the available actions $c_{min}$.
+              \item Filter the actions to include only those with a cost less or equal than $c_{min}(1+c) $.
+              \item Randomly select an action from this filtered set.
+          \end{itemize}
+          This policy introduces a more balanced approach than the random and greedy policies, balancing between optimal moves and random ones.
+\end{itemize}
+
+
+
+\subsection{Expansion policies}
+\label{sub:expansion_policies}
+When expanding a node, it is theoretically possible to expand all available child nodes i.e., add to the tree all the possible flight connections from this airport (that are in the available actions based on the visited areas). However, in practice, this can be computationally expensive and time-consuming, particularly in problems with a large number of possible actions. To address this, heuristic approaches often involve compromises that enhance the efficiency of the search process by selectively expanding certain nodes rather than all possible ones.
+
+Firstly, we defined \texttt{number\_of\_children}, a parameter of our MCTS algorithm which regulates the maximum number of children that can be expanded from any given node. This limitation controls the size of the search tree, as expanding too many children for every selected node could make the algorithm computationally exhaustive. In our implementation we defined two expansion policies:
+
+\begin{itemize}
+    \item \textbf{Top-K policy}: This policy expands the nodes corresponding to the cheapest flight connections available. Specifically, it sorts all possible actions based on their associated costs and selects the top \(k\) actions with the lowest costs, where \(k\) is regulated by \texttt{number\_of\_children}. This approach ensures that only the most promising actions, in terms of cost efficiency, are considered during expansion. This policy narrows down the search space but can increase the chance to reach a leaf node.
+    \item \textbf{Ratio policy}: This policy takes a more balanced approach by combining the selection of the best actions with a degree of randomness. First, it calculates the number of top actions to select based on a predefined ratio, \(c \in [0,1]\), which reflects the proportion of Top-K Actions within the allowed \texttt{number\_of\_children}. After selecting these best actions, the policy randomly selects $(1-c)*number\_of\_children$ actions from the remaining pool to reach the desired number of children. This policy is designed to explore a broader range of potential solutions while still prioritising cost-effective options.
+\end{itemize}
+
+\subsection{Notations}
+\label{sub:notations}
+
+After defining the different parameters of the MCTS, a MCTS function can be defined as follow:
+
+\begin{center}
+    \centering
+    $\begin{array}{cc}
+            \mathcal{MCTS} : S_p(C_p), E_p(c), R_p, N_c & \mapsto \\ ~~~~~~~~~~ \mathcal{MCTS}(S_p(C_p), E_p(c), R_p, N_c) \\
+        \end{array}$
+\end{center}
+
+where:
+\begin{itemize}
+    \item $S_p(C_p)$: Selection policy (UCB or UCB1-T) with exploration parameter $C_p$ (defined in Section \ref{sub:selection_policies_litterature}).
+    \item $E_p(c)$: Expansion policy (Top-k or Ratio (with ratio $c$)) (defined in Section \ref{sub:expansion_policies}).
+    \item $R_p$: Rollout/simulation policy (random, tolerance, or greedy) (defined in Section \ref{sub:simulation_policies}).
+    \item $N_c$: Maximum number of children added during node expansion.
+\end{itemize}
+
+\subsection{Pseudo-code}
+In this section, the implementation of the algorithm in practice is explored by examining the different functions of our MCTS class. The search function of the MCTS is defined:
+
+\begin{algorithm}[H]
+    \caption{Search\_Function}
+    \label{alg:MCTS}
+    \begin{algorithmic}[1]
+        \STATE Initialise Root\_Node with Initial\_State
+        \WHILE{Tree is not fully explored}
+        \STATE $Node \leftarrow \text{Select}(Root\_Node)$
+        \IF{$Node$ is not fully expanded}
+        \STATE $Node \leftarrow \text{Expand}(Node)$
+        \ENDIF
+        \STATE $Cost \leftarrow \text{Simulate}(Node)$
+        \STATE \text{Backpropagate}($Node$, $Cost$)
+        \ENDWHILE
+        \RETURN $Best\_Leaf\_Node$
+    \end{algorithmic}
+\end{algorithm}
+
+The \texttt{Search} function represents the general flow of the algorithm as mentioned on Figure \ref{fig:Flow MCTS}.
+
+The \texttt{Select} function (Algorithm \ref{alg:SelectFunction}), which selects the node to visit, returns two arguments: a boolean and a node. The boolean indicates to the expansion function whether expansion is necessary (True means no expansion needed, False means expansion needed).
+
+\begin{algorithm}[H]
+    \caption{Select\_Function}
+    \label{alg:SelectFunction}
+    \begin{algorithmic}[1]
+        \STATE \textbf{Input:} $Node$
+        \STATE $Current \leftarrow Node$
+        \WHILE{$Current.Children$ is not empty}
+        \IF{Current is not fully expanded}
+        \STATE $UnvisitedChildren \leftarrow$ \\ $\text{Children with } VisitCount = 0$
+        \IF{$UnvisitedChildren$ is not empty}
+        \STATE $SelectedChild \leftarrow$ \\ $\text{Randomly select from } UnvisitedChildren$
+        \RETURN $True, SelectedChild$
+        \ENDIF
+        \ELSE
+        \STATE $Current \leftarrow \text{BestChild}(Current)$
+        \ENDIF
+        \ENDWHILE
+        \IF{$Current.Children$ is empty \textbf{and} $Current.State["current\_day"]==N_{Areas}$}
+        \RETURN $False, Current$
+        \ELSIF{$Current.Children$ is empty \textbf{and} $Current.State["current\_day"]<>N_{Areas}$}
+        \RETURN $False, Current$
+        \ELSIF{$Current.State["current\_day"]==N_{Areas} + 1$}
+        \RETURN $True, Current$
+        \ENDIF
+    \end{algorithmic}
+\end{algorithm}
+
+There are special cases to handle, when one approaches the final solution because one has to communicate the right information to the \texttt{Expand Node} function.
+
+After simulating, the backpropagation function updates the node's attributes. The new node becomes the parent of this node, and so on until \texttt{Node} is \texttt{None}, i.e., all the information is backpropagated up to the root node.
+
+\begin{algorithm}
+    \caption{Backpropagate\_Function}
+    \label{alg:Backpropagate}
+    \begin{algorithmic}[1]
+        \WHILE{$Node$ is not $None$}
+        \STATE $Node.Update(Cost)$
+        \STATE $Node \leftarrow Node.Parent$
+        \ENDWHILE
+    \end{algorithmic}
+\end{algorithm}
+
+The transition function modifies the states of a node by updating the current airport, the visited zones, remaining zones, etc.
+
+\begin{algorithm}
+    \caption{Transition\_Function}
+    \label{alg:TransitionFunction}
+    \begin{algorithmic}[1]
+        \STATE $New\_State \leftarrow \text{Copy of } State$
+        \STATE $New\_State.Current\_Day \leftarrow State.Current\_Day + 1$
+        \STATE $New\_State.Current\_Airport \leftarrow Action[0]$
+        \STATE $New\_State.Total\_Cost \leftarrow State.Total\_Cost + Action[1]$
+        \STATE \text{Update}($New\_State.Path$, $New\_State.Current\_Airport$)
+        \STATE \text{Remove\_Visited}($New\_State.Remaining\_Zones$, $New\_State.Current\_Airport$)
+        \STATE \text{Add\_Visited}($New\_State.Visited\_Zones$, $New\_State.Current\_Airport$)
+        \RETURN $New\_State$
+    \end{algorithmic}
+\end{algorithm}
+
+Finally, the Best Child function, defined in the Node class is based on the selection function UCB and UCB1\_Tuned. They both, compute the score of the visited nodes and pick the one that minimises the selection function.
+
+\begin{algorithm}
+    \caption{Best Child}
+    \label{alg:Best Child}
+    \begin{algorithmic}[1]
+        \REQUIRE $Selection\_Function$
+        \STATE $Visited\_Children \leftarrow \text{Children with } visitCount > 0$
+        \STATE $Choices\_Weights \leftarrow$ 
+        \\ $\left[ Selection\_Function(child) \text{ for child in } Visited\_Children \right]$
+        \STATE $Best\_Child\_Node \leftarrow$ \\ $\text{Child with minimum } Choices\_Weights$
+        \RETURN $Best\_Child\_Node$
+    \end{algorithmic}
+\end{algorithm}
+
+\section{Test Instances}
+
+We are given a set of 14 instances \( I_{n} = \{I_1, I_2, \ldots, I_{13}, I_{14}\} \). For example, the first few lines of instance \( I_4 \) are:
+
+\begin{center}
+    \begin{tabular}{|l|}
+    \hline
+        \textcolor{gray}{13} \textcolor{blue}{GDN}      \\
+        first                                           \\
+        \textcolor{orange}{WRO} \textcolor{purple}{DL1} \\
+        \textcolor{red}{second}                         \\
+        BZG KJ1                                         \\
+        third                                           \\
+        BXP LB1                                         \\
+    \hline
+    \end{tabular}
+\end{center}
+
+This means that the traveller has to visit \textcolor{gray}{13} different areas, starting at the airport \textcolor{blue}{GDN}, which belongs to the starting area. The list of airports in each area is then provided. For example, the second area is named \textcolor{red}{second} and contains two airports: \textcolor{orange}{WRO} and \textcolor{purple}{DL1}.
+
+After all the information regarding the areas and airports is provided, we then have the flight connections data. In Table \ref{table:Flight connections sample I6}, a few flight connections from instance \( I_6 \) are displayed for illustrative purposes.
+
+\begin{table}
+    \centering
+    \caption{Flight connections sample for instance $I_6$}
+    \begin{tabular}{cccc}
+        \toprule
+        Departure from & Arrival & Day & Cost \\ %[1ex]
+        \midrule
+        KKE            & BIL     & 1   & 19   \\
+        UAX            & NKE     & 73  & 16   \\
+        UXA            & BCT     & 0   & 141  \\
+        UXA            & DBD     & 0   & 112  \\
+        UXA            & DBD     & 0   & 128  \\
+        UXA            & DBD     & 0   & 110  \\
+        %[1ex]
+        \bottomrule
+    \end{tabular}
+    \label{table:Flight connections sample I6}
+\end{table}
+
+For each instance \( I_i \), we know the available flight connections between two airports on specific days and their associated costs. In some instances, flights may be available on day 0, meaning these connections exist for every day of the journey at the same price. Moreover, there may be multiple flights between the same airports on a specific day, but with varying prices. In such cases, we consider only the most relevant connections, i.e., the flight connection with the lowest fare. For example, in Table \ref{table:Flight connections sample I6}, we only consider the flight from UXA to DBD with the lowest associated cost of 110.
+
+When solving all the instances, Kiwi.com defined time limit constraints based on the nature of the instance. These constraints are summarised in Table \ref{table:Time limit constraints}.
+
+\begin{table}
+    \centering
+    \caption{Time limits based on the number of areas and airports}
+    \begin{tabular}{>{\centering\arraybackslash}p{1cm}|>{\centering\arraybackslash}p{1cm}|>{\centering\arraybackslash}p{1.3cm}|>{\centering\arraybackslash}p{1.1cm}}
+        \toprule
+        Instance Type & Number of Areas & Number of Airports & Time Limit (s) \\ 
+        \midrule
+        Small         & $\leq 20$        & $<50$             & 3              \\
+        Medium        & $\leq 100$       & $<200$            & 5              \\
+        Large         & $>100$           &                   & 15             \\ 
+        \bottomrule
+    \end{tabular}
+    \label{table:Time limit constraints}
+\end{table}
+
+All the relevant information about the instances, such as the starting airport, the associated area, the range of airports per area, the number of airports, and the time limit constraints, are defined in Table \ref{table:Instances presentation}.
+
+\begin{table}
+    \centering
+    \caption{Instances and their respective parameters}
+    \resizebox{0.49\textwidth}{!}{ % Resize the table to fit the text width
+        \begin{tabular}{>{\centering\arraybackslash}p{0.6cm}
+            >{\centering\arraybackslash}p{2.3cm}
+            >{\centering\arraybackslash}p{1cm}
+            >{\centering\arraybackslash}p{2.1cm}
+            >{\centering\arraybackslash}p{1cm}
+            >{\centering\arraybackslash}p{1.1cm}}
+            \toprule
+            Instance & Starting Area - Airport & Number of Areas & Min - Max Airports per Area & Total Airports & Time Limit (s) \\
+            \midrule
+            $I_1$    & Zona\_0 - AB0        & 10  & 1 - 1 & 10  & 3  \\
+            $I_2$    & Area\_0 - EBJ        & 10  & 1 - 2 & 15  & 3  \\
+            $I_3$    & Ninth - GDN          & 13  & 1 - 6 & 38  & 3  \\
+            $I_4$    & Poland - GDN         & 40  & 1 - 5 & 99  & 5  \\
+            $I_5$    & Zone0 - RCF          & 46  & 3 - 3 & 138 & 5  \\
+            $I_6$    & Zone0 - VHK          & 96  & 2 - 2 & 192 & 5  \\
+            $I_7$    & Abfuidmorz - AHG     & 150 & 1 - 6 & 300 & 15 \\
+            $I_8$    & Atrdruwkbz - AEW     & 200 & 1 - 4 & 300 & 15 \\
+            $I_9$    & Fcjsqtmccq - GVT     & 250 & 1 - 1 & 250 & 15 \\
+            $I_{10}$ & Eqlfrvhlwu - ECB     & 300 & 1 - 1 & 300 & 15 \\
+            $I_{11}$ & Pbggaefrjv - LIJ     & 150 & 1 - 4 & 200 & 15 \\
+            $I_{12}$ & Unnwaxhnoq - PJE     & 200 & 1 - 4 & 250 & 15 \\
+            $I_{13}$ & Hpvkogdfpf - GKU     & 250 & 1 - 3 & 275 & 15 \\
+            $I_{14}$ & Jjewssxvsc - IXG     & 300 & 1 - 1 & 300 & 15 \\
+            \bottomrule
+        \end{tabular}
+    }
+    \label{table:Instances presentation}
+\end{table}
+
+
+\section{Comprehensive Results}
+
+The primary objective was to implement a new algorithm to find solutions without imposing time constraints. Hence, simulations for every instances have been conducted, testing different combinations of parameters in what is called a grid search. Each combination of parameters was run 10 times to ensure the reliability and consistency of the results.
+One challenge, is that the computational budget is limited when using Python. Hence, the size of the grid search for the more complex studied instances is reduced. 
+
+After running the various simulations with the grid search parameters, our results were compared with the best known solutions. A solution was found for $I_1, I_2, I_3, I_4,I_7$ and $I_8$. 
+
+\subsection{Analysis}
+\subsubsection{$I_1$, $I_2$, $I_3$ and $I_4$}
+For instances $I_1, I_2$ and $I_3$, solutions were found and the various simulations were carried out successfully. Therefore, the influence of the parameters on the $\mathcal{MCTS}$ function and the final solution was investigated.
+However, only few parametrisation of the $\mathcal{MCTS}$ allowed finding a solution for $I_4$: the UCB1T selection policy and tolerance or random simulation policy created a tree too large to find solutions in a reasonable time (discussed in the following section).
+
+\subsubsection*{Analysis on $C_p$}
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.42\textwidth]{Figures/3 - cp_vs_selection.png}
+    \caption{$C_p$ vs Number of selection}
+    \label{fig:cp_vs_selection_3}
+\end{figure}
+
+In Figure \ref{fig:cp_vs_selection_3}, the box plots illustrate the relationship between the exploration constant \( C_p \) and the number of selection phases under the UCB and UCB1T selection policies:
+
+\begin{itemize}
+    \item \textbf{\( C_p = 0 \) lead to the same performance:}
+          When the $C_p=0$, the selection policy of the UCB and the UCB1T are equal, leading to the same decision-making during the MCTS (cf equation \ref{eq:UCB} and \ref{eq:UCB1T}).
+    \item \textbf{Higher \( C_p \) values lead to faster convergence for UCB:}
+          As \( C_p \) increases from $0.0$ to $2.82$, the median number of selection phases under the UCB policy decreases.
+
+    \item \textbf{UCB1T encourages more exploration:}
+          UCB1T consistently results in a higher number of selection phases compared to UCB, especially at higher \( C_p \) values. This is consistent with UCB1T's definition to promote broader exploration before converging.
+\end{itemize}
+
+Although a higher exploration parameter $C_p$ may lead to faster convergence under the UCB selection policy, it often results in worse outcomes compared to the UCB1T algorithm, as shown in Figure \ref{fig:cp_vs_cost_3}.
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.42\textwidth]{Figures/3 - cp_vs_cost.png}
+    \caption{$C_p$ vs Total cost}
+    \label{fig:cp_vs_cost_3}
+\end{figure}
+While UCB1T may require more time to converge, it generally explores the search tree more effectively, leading to better overall performance. One can notice that $C_p$'s correlation with the UCB1T selection policy for $I_3$ is low.
+
+
+\subsubsection*{Analysis of expansion ratio $c$}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.42\textwidth]{Figures/3 - ratio_vs_time.png}
+    \caption{Ratio expansion vs Time to find the solution}
+    \label{fig:Ratio vs Time}
+\end{figure}
+
+The box plots show the relationship between ratio expansion (the proportion of expanded child nodes that has the cheapest flight connection over the chosen number of children) and the time to find a solution for the UCB and UCB1T policies:
+
+\begin{itemize}
+    \item \textbf{UCB finds solution faster than UCB1T:}
+          Across all ratio expansion values, the UCB policy consistently finds solutions more quickly than UCB1T. This suggests that UCB, being less aggressive in exploration, converges on solutions faster.
+
+          %\item \textbf{UCB1T Takes Longer Due to Extensive Exploration:}
+          %      UCB1T shows higher and more variable times to find solutions, especially at lower ratio expansions (e.g., $0.0$). This reflects UCB1T's property to explore more than UCB.
+
+    \item \textbf{Higher ratios lead to a faster convergence:}
+          For both policies, the time to find a solution generally decreases as the ratio expansion increases, indicating a more efficient search process when expanded nodes are less chosen randomly from the set of available actions. However, in more complex instances, it is crucial to have a ratio $r \in [0.3,0.7]$ to escape potential leaf node.
+\end{itemize}
+
+Finally, the UCB policy is more correlated to the expansion ratio than the UCB1T as shown in Figure \ref{fig:ratio_vs_cost_3}. UCB's overall performance is worst than UCB1T because it relies heavily on the exploitation compared to UCB1T that even if it converges slower gives better results.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.42\textwidth]{Figures/3 - ratio_vs_cost.png}
+    \caption{Expansion ratio vs Total cost}
+    \label{fig:ratio_vs_cost_3}
+\end{figure}
+
+
+\subsubsection*{Analysis of simulations performances}
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.42\textwidth]{Figures/3 - Simulation performance.png}
+    \caption{Simulation performance - Instance 3}
+    \label{fig:sim_perf_3}
+\end{figure}
+Box plots for the tree simulations policies are represented on Figure \ref{fig:sim_perf_3}. For each day, the distribution of the simulated outcome is plotted regarding the simulation policy. Coloured curves represent the minimum and maximum of these distributions, while dashed lines indicate the medians.
+
+In Figure \ref{fig:sim_perf_3}, the greedy simulation policy is more performant because the distribution of simulations at every day has a lower min, max and median.
+The convergence of the Random policy is more pronounced due to the policy's inherent randomness. For instance, with the greedy and tolerance policies, at day two or three, the minimum has already almost been reached. Therefore, a well-calibrated set of parameters for the $\mathcal{MCTS}$ (as defined in Section \ref{sub:notations}) should converge towards the minimum cost found during the simulations. If this is not the case, it indicates that the parameterisation of $\mathcal{MCTS}$ is not optimal. In Figure \ref{fig:sim_perf_4_cp_zero}, the distributions of the simulated outcomes are represented for a  $\mathcal{MCTS}(S_p(C_p=0),E_p(c),R_p,N_c=10)$.
+
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.42\textwidth]{Figures/4 - Simulation performance - CP=0.png}
+    \caption{Simulation performance $C_p=0$ - Instance 4}
+    \label{fig:sim_perf_4_cp_zero}
+\end{figure}
+The parametrisation of this MCTS is not efficient for the considered instance, hence the search process do not converge towards the minimum found cost. These two distributions have a similar behaviour, having $C_p=0$ indicates a similar decision-making process when using the UCB and UCB1T selection policy.
+For $I_4$, as mentioned earlier, the difficulty was to run all the simulations of the MCTS with the parameters in the grid search. This is why fewer simulations were carried out for this instance, but we found solutions with a gap of $X\%$ compared to the state-of-the-art solution.
+
+In Figure \ref{fig:sim_perf_vs_c_3}, the median distributions for the different scenarios have been plotted. One can observe that having a value $c$ too close to 1, does not on average converge to this minimum-cost solution. A contrario, lower $c$ values appears to guide the tree search more effectively during the first days of simulations, which is crucial to not overexpand the size of the tree, which can lead to an inefficient and time-consuming MCTS.
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.42\textwidth]{Figures/3 - Simulation performance vs Expansion ratio.png}
+    \caption{Simulation performance vs Expansion Ratio - Instance 3}
+    \label{fig:sim_perf_vs_c_3}
+\end{figure}
+
+These conclusions can be drawn for small instances, however for $I_4$, we can clearly see in Figure \ref{fig:sim_perf_vs_c_4} that having $c=0$ for a greedy selection policy is inefficient in this tree search because it diverges from the min-simulated cost. The tree search is therefore unable to find a solution after 10 minutes. Based on the median comparison, $c=1$ is a more optimal parameter for guiding the tree search (for $I_3$).
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.42\textwidth]{Figures/4 - Simulation performance vs Expansion ratio.png}
+    \caption{Simulation performance vs Expansion Ratio - Instance 4}
+    \label{fig:sim_perf_vs_c_4}
+\end{figure}
+
+
+\subsubsection{$I_5$ and $I_6$}
+
+The challenge faced with these two instances is that with the defined grid search, the $\mathcal{MCTS}$ function was not able to conduct the tree search effectively.
+
+While standard stochastic simulation policies can occasionally reach a final state (i.e.\ find a feasible solution), they often fail to guide the search process effectively towards these solutions. Even if the tree expands node's that reached final state, there are few chances to reach a terminal state again, leading to the pruning of the tree.
+
+
+\subsubsection{$I_7$ and $I_8$}
+For $I_7$, we have found solutions close to the best known solution, with a gap of 3.2\%.
+The tolerance policy was not in the parameters of the grid search but we run 10 simulations with the parameters defined in Table \ref{table:Simulation table - I7}.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Simulation table - $I_7$}
+    \resizebox{0.45\textwidth}{!}{\begin{tabular}{||>{\centering\arraybackslash}p{1.3cm}
+            >{\centering\arraybackslash}p{1.3cm}
+            >{\centering\arraybackslash}p{1.3cm}
+            >{\centering\arraybackslash}p{1.3cm}
+            >{\centering\arraybackslash}p{0.7cm}
+            >{\centering\arraybackslash}p{0.8cm}
+            >{\centering\arraybackslash}p{1cm}
+            >{\centering\arraybackslash}p{1cm}
+            >{\centering\arraybackslash}p{1cm}
+            >{\centering\arraybackslash}p{1cm}
+            ||}
+            \toprule
+            Selec policy & Exp policy & Simu policy & N° childrens & Ratio & Cp  & Best cost & Mean  & Std  & T(s)  \\
+            \midrule
+            UCB          & top k      & greedy      & 10           & -     & 1.4 & 31924     & 31924 & 0    & 238.3 \\
+            UCB          & ratio k    & greedy      & 10           & .5    & 1.4 & 32331     & 32331 & 0    & 239.7 \\
+            UCB          & top k      & tolerance   & 10           & -     & 1.4 & 49712     & 52584 & 1938 & 588.4 \\
+            \bottomrule
+        \end{tabular}}
+    \label{table:Simulation table - I7}
+\end{table}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.42\textwidth]{Figures/7 - comparison sim tolerance vs greedy.png}
+    \caption{Simulation performance comparison between Greedy and Tolerance - Instance 7}
+    \label{fig:sim_perf_greedy_tolerance_7}
+\end{figure}
+
+For this instance, the greedy simulation policy is clearly to be preferred to the tolerance simulation policy. The stochastic policy ends it tree search by selecting nodes that have an overall cost higher than node's found during the simulation process, as shown in Figure \ref{fig:sim_perf_greedy_tolerance_7}. Therefore the parametrisation of $\mathcal{MCTS}$ has to be revised. The ratio\_k and the top\_k policy yields to overall similar performance in term of solution and performance metrics.
+Regarding $I_8$, in Table \ref{table:Simulation table - I8}, a new state of the art solution has been found with a with a cost less than 0.52\% compared to the best known solution.
+\begin{table}[!ht]
+    \centering
+    \caption{Simulation table - $I_8$}
+    \resizebox{0.45\textwidth}{!}{\begin{tabular}{||>{\centering\arraybackslash}p{1.3cm}
+            >{\centering\arraybackslash}p{1.3cm}
+            >{\centering\arraybackslash}p{1.3cm}
+            >{\centering\arraybackslash}p{1.3cm}
+            >{\centering\arraybackslash}p{0.7cm}
+            >{\centering\arraybackslash}p{0.8cm}
+            >{\centering\arraybackslash}p{1cm}
+            >{\centering\arraybackslash}p{1cm}
+            >{\centering\arraybackslash}p{1cm}
+            >{\centering\arraybackslash}p{1cm}
+            ||}
+            \toprule
+            Selec policy & Exp policy & Simu policy & N° childrens & Ratio & Cp  & Best cost & Mean & Std & T(s)  \\
+            \midrule
+            UCB          & top k      & greedy      & 10           & -     & 1.4 & 4037      & 4037 & 0   & 718.6 \\
+            UCB          & ratio k    & greedy      & 10           & .5    & 1.4 & 4104      & 4104 & 0   & 705.9 \\
+
+            \bottomrule
+        \end{tabular}}
+    \label{table:Simulation table - I8}
+\end{table}
+
+
+
+
+\subsubsection{$I_9$ to $I_{14}$}
+
+Although these instances are outside the scope of this thesis, we have tried to solve them using the same parameters in the grid search as for $I_7$ and $I_8$. The complexity of the instances makes simulations (considering the greedy policy) impossible to reach a final node, as does the problem encountered with $I_5$ and $I_6$.
+
+
+
+\subsection{Parallelisation}
+As discussed in Section \ref{sub:parralelisation}, parallelisation can be implemented to better estimate one selected node's value.
+In our implementation, for $I_4$, we parralelised a $\mathcal{MCTS}(S_p(C_p=0)="UCB",E_p(c=0)="ratio\_k",R_p="random",N_c=10)$ on five cores. The set of parameters has been chosen to represent the behavior of parallelisation in a stochastic environment.  A leaf parralelisation has been implemented, simulating on five cores simultaneously. At every simulation step of the MCTS, the minimum outcome of the five simulations is chosen. 100 simulations of this parralelised MCTS have been runned.
+
+In Figure \ref{fig:sim_perf_parral_4}, the five cores parallelised's distribution better performs than the non-parralelised approach. It confirms that parallelisation guides the MCTS more effectively in the first days of the tree search.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.42\textwidth]{Figures/4 - Paralelised vs 5 CPU paralelised.png}
+    \caption{Comparison of the distributions for the simulated outcomes without parralelisation and with 5 cores - Instance 4}
+    \label{fig:sim_perf_parral_4}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.42\textwidth]{Figures/Distribution stats tests P vs NP.png}
+    \caption{Statistical tests to compare the 5 cores parralelised and not parralelised distribution - Instance 4}
+    \label{fig:stats test parralel}
+\end{figure}
+The Mann-Whitney and the Kolmogorov-Smirnov statistical tests have been implemented. These tests compute p-values that test the null hypothesis that the two groups have the same distribution. Hence, from Figure \ref{fig:stats test parralel} there is enough statistical evidence to say that a five core parallelised MCTS with a stochastic simulation policy better performs with parralelisation at a 5\% level.
+
+A comparison between five-core and ten-core parallelisations of the considered Monte Carlo Tree Search (MCTS) is shown in Figure \ref{fig:parralel (5 vs 10)} and \ref{fig:Stats test 5 VS 10 Parall}. There are no statistical improvments in increasing the number of cores. As discussed in \cite{different_selection_policies}, too many modifications to the MCTS can lead to undesirable behaviour.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.42\textwidth]{Figures/4 - 5 CPU Paralelised vs 10 CPU paralelised.png}
+    \caption{Comparison of the distributions for the simulated outcomes on 5 vs 10 cores - Instance 4}
+    \label{fig:parralel (5 vs 10)}
+\end{figure}
+
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.42\textwidth]{Figures/4 - Distribution stats tests 5P vs 10P.png}
+    \caption{Statistical tests to compare the 5 and 10 cores distribution - Instance 4}
+    \label{fig:Stats test 5 VS 10 Parall}
+\end{figure}
+
+\input{appendix2}
+\input{appendix}
+
+\bibliographystyle{IEEEtran}
+\bibliography{Ref}
+
+\end{document}

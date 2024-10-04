@@ -1,0 +1,10 @@
+
+\section{Conclusion}
+
+In this paper, a Monte Carlo Tree Search (MCTS) solution was implemented to address the Kiwi.com Travelling Salesman Problem 2.0, focusing on the first eight instances without imposing time constraints. The MCTS algorithm achieved solutions close to, or matching, the state-of-the-art solutions in several cases. Notably, for instance $I_8$, a new best solution was discovered, surpassing the previous best.
+
+Regarding the selection policy, UCB1-Tuned outperformed the classic UCB by guiding the tree search more accurately through its consideration of simulation variability. However, UCB1-Tuned generally explores the tree more broadly and takes longer to converge compared to UCB. For expansion ratios, a lower ratio was preferred for smaller instances ($I_1, I_2, I_3$) to achieve faster solutions. Conversely, for other instances, a balanced ratio of 0.5 proved effective in incorporating new potential candidates into the solution space, thus accelerating the tree search. Nevertheless, the top-k expansion policy was superior, achieving solutions for $I_7$ and $I_8$ that were close to and better than the best-known solutions, respectively.
+
+In terms of simulation policies, the greedy approach consistently provided the best performance across various instances, minimising the risk of the search becoming trapped in local optima due to the effectiveness of the selection policies. The tolerance policy, while offering a balanced approach, sometimes exhibited undesirable behaviour with more complex instances (e.g., $I_4$). The random policy, though effective for smaller instances, generally did not yield the best results and is therefore less favourable overall.
+
+Finally, we recommend focusing on parallelisation within the MCTS framework. Parallelisation is especially beneficial when employing stochastic simulations, as it enhances the estimation of node values and improves the efficiency of the tree search. 

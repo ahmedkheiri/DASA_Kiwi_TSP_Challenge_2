@@ -1,0 +1,50 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{url}
+
+
+\usepackage{ragged2e, tabularx, makecell, booktabs}
+\usepackage{multirow}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fontawesome5}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{A Monte Carlo Tree Search for the
+Optimisation of Flight Connections
+}
+
+\author{\IEEEauthorblockN{Arnaud Da Silva\IEEEauthorrefmark{1}, Ahmed Kheiri\IEEEauthorrefmark{1}}
+\IEEEauthorblockA{\IEEEauthorrefmark{1}Lancaster University, Department of Management Science, Lancaster LA1 4YX, UK
+\\ \{a.dasilva, a.kheiri\}@lancaster.ac.uk}}
+
+
+\maketitle
+
+\begin{abstract}
+In 2017, Kiwi.com proposed the Travelling Salesman problem 2.0. Despite some similarities with the classic Travelling Salesman Problem (TSP), the problem is more complex. It can be characterised as an asymmetric, time-constrained and generalised TSP. Moreover, infeasibility adds further complexity to the problem as there are no flights available between specific airports at specific days. Exact methods often fail in solving these $\mathcal{NP}$-Hard problems. Therefore, alternative approaches, such as heuristics, are preferred to approach these problems. A Monte Carlo Tree Search (MCTS) is implemented to tackle Kiwi's problem, an algorithm traditionally used in board games, but here adapted to solve an air travel optimisation problem. The MCTS has been chosen for its proven effectiveness in handling complex and high-dimensional search spaces.
+
+\end{abstract}
+
+\begin{IEEEkeywords}
+Optimisation, Travelling Salesman Problem, Monte Carlo Tree Search, Heuristic Design.
+\end{IEEEkeywords}
+
+\input{1_intro}
+\input{2_description}
+\input{3_methods}
+\input{4_results}
+\input{5_conc}
+
+\bibliographystyle{IEEEtran}
+\bibliography{Ref}
+
+\end{document}

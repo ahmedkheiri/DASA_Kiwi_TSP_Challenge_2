@@ -1,0 +1,87 @@
+\section{Problem description}
+
+Kiwi's traveller plans to visit \(N\) different areas over \(N\) days. Let \(A\) denote the set of areas the traveller intends to visit:  
+$A = \{A_1, A_2, \ldots, A_N\}$, where each \(A_j\) is a set of airports within area \(j\), represented as:  $A_j = \{a_{j,1}, a_{j,2}, \ldots, a_{j,k_j}\}$. Here, \(a_{j,k_j}\) represents the airports in area \(j\), and \(k_j\) is the number of airports in area \(j\). 
+%
+The traveller must visit one area per day. They have to leave each area to visit a new one by departing from the same airport they arrived at. The journey starts from a known airport, and the traveller must complete the trip by returning to the starting area, though not necessarily to the starting airport. 
+%
+There are flight connections between different airports, with varying prices depending on the day of travel. Let \(c^{d}_{ij}\) represent the cost to travel from city \(i\) to city \(j\) on day \(d\). It is not necessarily true that \(c^{d}_{ij} = c^{d}_{ji}\), nor that \(c^{d_1}_{ij} = c^{d_2}_{ij}\) if \(d_1 \neq d_2\). Moreover, \(\exists d\) such that \(c^{d}_{ij} = \infty\), meaning there is no flight connection between city \(i\) and city \(j\) on day \(d\). 
+%
+The aim of the problem is to find the cheapest route for the traveller's journey. 
+%
+The problem has not been mathematically defined in previous research. Therefore, we can formulate the problem as follows:
+
+\begin{itemize}
+    \item $\mathcal{A} = \{1, 2, \ldots, N\}$: Set of areas.
+    \item $A_j = \{a_{j,1}, a_{j,2}, \ldots, a_{j,k_j}\}$: Set of airports in area $j \in \mathcal{A}$.
+    \item $\mathcal{D} = \{1, 2, \ldots, N\}$: Set of days.
+    \item $U_d \subseteq \mathcal{A}$: Set of areas that have not been visited by the end of day $d$.
+\end{itemize}
+
+\subsection*{Parameters and Variables}
+\begin{itemize}
+    \item $c_{ij}^d$: Cost to travel from airport $i$ to airport $j$ on day $d \in \mathcal{D}$.
+    \item $x_{ij}^d$: Binary variable, equal to 1 if the traveller flies from airport $i$ to airport $j$ on day $d$, and 0 otherwise.
+    \item $v_j^d$: Binary variable, equal to 1 if area $j$ is visited on day $d$, and 0 otherwise.
+\end{itemize}
+
+\subsection*{Objective Function}
+The goal is to minimise the total travel cost of the journey:
+\begin{align}
+\min \Bigg( &\sum_{d=2}^{N-1} \sum_{i \in \bigcup_{k=2}^{N-1} A_k} \sum_{j \in \bigcup_{k=3}^{N} A_k} c_{ij}^d x_{ij}^d \notag \\
+           &+ \sum_{j \in A_1} c_{S_0,j}^1 x_{S_0,j}^1 + \sum_{i \in A_N} \sum_{j \in A_1} c_{ij}^N x_{ij}^N \Bigg)
+\end{align}
+
+\subsection*{Constraints}
+\begin{itemize}
+    \item Starting from the known starting airport \(S_{0}\) and taking an existing flight connection:
+          \[
+          \sum_{j \in A_1} x_{S_0,j}^1 = 1 \quad \text{and} \quad \forall d \in \mathcal{D}, c_{S_0,j}^{d} \in \mathbb{R}^{+*}
+          \]
+
+    \item Visit exactly one airport in each area each day:
+          \[
+          \sum_{i \in A_d} \sum_{j \in A_{d+1}} x_{ij}^d = 1 \quad \forall d \in \{1, 2, \ldots, N-1\}
+          \]
+
+    \item Ensure the traveller departs from the same airport they arrived at the previous day:
+          \[
+          \sum_{k \in A_d} x_{ik}^d = \sum_{k \in A_{d-1}} x_{ki}^{d-1} \quad \forall i \in \bigcup_{j=1}^N A_j, \forall d \in \{2, 3, \ldots, N\}
+          \]
+
+    \item Return to an airport in the starting area on the final day with an existing flight connection:
+          \[
+          \sum_{i \in A_N} \sum_{j \in A_1} x_{ij}^N = 1 \quad \text{and} \quad \forall (i,j) \in A_N \times A_1, c_{ij}^{N} \in \mathbb{R}^{+*}
+          \]
+
+    \item Ensure each area is visited exactly once:
+          \[
+          \sum_{d \in \mathcal{D}} v_j^d = 1 \quad \forall j \in \mathcal{A}
+          \]
+
+    \item Update the unvisited list:
+          \[
+          v_j^d = 1 \implies j \notin U_d \quad \forall j \in \mathcal{A}, \forall d \in \mathcal{D}
+          \]
+
+    \item Ensure a flight on day \(d\) between airports \(i\) and \(j\) exists only if the cost exists and area \(j\) is unvisited on day \(d\):
+          \[
+          x_{ij}^d \leq c_{ij}^d \cdot v_j^d \quad \forall i, j \in \left( \bigcup_{j=1}^N A_j \right)^2, \forall d \in \mathcal{D}
+          \]
+          \[
+          x_{ij}^d \leq v_j^d \quad \forall j \in \bigcup_{j=1}^N A_j, \forall d \in \mathcal{D}
+          \]
+
+    \item Binary variable constraints:
+          \[
+          x_{ij}^d \in \{0, 1\} \quad \forall (i, j) \in \left( \bigcup_{j=1}^N A_j \right)^2, \forall d \in \mathcal{D}
+          \]
+          \[
+          v_j^d \in \{0, 1\} \quad \forall j \in \mathcal{A}, \forall d \in \mathcal{D}
+          \]
+\end{itemize}
+
+%\subsection{Test Instances}
+
+%We are given a set of 14 instances \( I_{n} = \{I_1, I_2, \ldots, I_{13}, I_{14}\} \). For each instance \( I_i \), we know the available flight connections between two airports on specific days and their associated costs. In some instances, flights may be available on day 0, meaning these connections exist for every day of the journey at the same price. Moreover, there may be multiple flights between the same airports on a specific day, but with varying prices. In such cases, we consider only the most relevant connections, i.e., the flight connection with the lowest fare. 
+

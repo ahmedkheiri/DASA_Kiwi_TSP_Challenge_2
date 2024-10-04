@@ -1,0 +1,48 @@
+\section{Methodology}
+
+\subsection{Selection Policy}
+
+The selection phase of the Monte Carlo Tree Search (MCTS) algorithm uses the \textit{Upper Confidence Bound (UCB)} strategy to balance exploration and exploitation. This involves selecting the node that minimises the UCB or the UCB1-Tuned score, calculated as: $UCB = \overline{X}_i + C_p \sqrt{\frac{2 \ln N}{n_i}}$
+
+\begin{equation}
+    UCB1T = \overline{X}_i + \sqrt{\frac{\ln N}{n_i} \min\left(\frac{1}{4}, \mathrm{Var}(X_i) + \sqrt{\frac{2 \ln N}{n_i}}\right)}
+    \nonumber
+\end{equation}
+
+Where:
+\begin{itemize}
+    \item \( \overline{X}_i \): The average reward of node \( i \).
+    \item \( N \): The total number of visits to the root node.
+    \item \( n_i \): The number of visits to node \( i \).
+    \item \( C_p \): Exploration parameter.
+    \item \( \mathrm{Var}(X_i) \): The variance of the rewards at node \( i \), representing the variability of the rewards.
+\end{itemize}
+
+The UCB balances exploration with the coefficient $C_p$, where empirically $C_p = \sqrt{2}$. The term \( C_p \sqrt{\frac{2 \ln N}{n_i}} \) adds a confidence interval to the average reward, which encourages exploring less-visited nodes when $C_p > 0$. When $C_p = 0$, the tree search explores less but exploits more of the known part that appears promising for the problem in the tree.
+
+The UCB1-Tuned balances its exploration with \( \min\left(\frac{1}{4}, \mathrm{Var}(X_i) + \sqrt{\frac{2 \ln N}{n_i}}\right) \), making UCB1-Tuned more adaptable to environments with varying reward distributions. The $C_p$ coefficient can also be considered in UCB1-Tuned's formula. Hence, in stochastic environments, UCB1-Tuned is more likely to exhibit better overall performance.
+
+\subsection{Simulation Policy}
+
+When a simulation is run from a given node in the tree, the goal is to find a feasible combination of airports that could be a solution to our problem. Three simulation policies have been implemented and are used to select the actions needed to reach a leaf node in the tree:
+
+\begin{itemize}
+    \item \textbf{Random policy}: This policy selects a random action from the set of available actions, introducing variability and exploration in the simulation process.
+    \item \textbf{Greedy policy}: This policy selects the action that corresponds to the cheapest available flight connection, thus prioritising cost minimisation at each step.
+    \item \textbf{Tolerance policy} (with coefficient $c$): This policy selects an action randomly from a subset of actions that are within a certain tolerance level $c$ of the minimum cost action. This policy introduces a more balanced approach than the random and greedy policies.
+\end{itemize}
+
+\subsection{Expansion Policy}
+
+When expanding a node, it is theoretically possible to expand all available child nodes. However, in practice, this can be computationally expensive and time-consuming, particularly in problems with a large number of possible actions. To address this, heuristic approaches often involve compromises that enhance the efficiency of the search process by selectively expanding certain nodes rather than all possible ones.
+
+\begin{itemize}
+    \item \textbf{Top-K policy}: This policy expands the nodes corresponding to the cheapest flight connections available. It sorts all possible actions based on their associated costs and selects the top \(k\) actions with the lowest costs, where \(k\) is regulated by the allowed number of children \(N_c\).
+    \item \textbf{Ratio policy}: This policy takes a more balanced approach by combining the selection of the best actions with a degree of randomness. First, it calculates the number of top actions to select based on a predefined ratio, \(c \in [0,1]\), which reflects the proportion of Top-K actions within the allowed \(N_c\). After selecting these best actions, the policy randomly selects \((1-c) \times N_c\) actions from the remaining pool to reach the desired number of children.
+\end{itemize}
+
+A $\mathcal{MCTS}$ function can be defined. The function parameters include $S_p(C_p)$ for the selection policy, $E_p(c)$ for the expansion policy, $R_p$ for the rollout policy, and \(N_c\), defining the maximum number of children expanded per node.
+
+\subsection{Parallelisation}
+
+In computer science, parallelisation is a technique that divides a number of tasks into sub-tasks that can be independently and simultaneously run on multiple cores of a computer. Due to the nature of MCTS and its four phases, this algorithm is a good candidate for parallelisation. For instance, after selecting a node to explore, rather than conducting a single simulation based on one simulation policy, you can either run simulations using multiple different simulation policies and select the best outcome, or perform multiple simulations using the same policy (if it is stochastic). This is known as leaf parallelisation \cite{different_selection_policies}.
