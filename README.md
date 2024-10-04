@@ -8,12 +8,19 @@ This repository contains an implementation of a **Monte Carlo Tree Search (MCTS)
 
 ### 1. Instances
 
-In this folder, you will find the first two problem instances:
+In the folder [Instances](./Instances), you will find the first 8 instances discussed in the paper:
 
 - `1.in`
 - `2.in`
+- `3.in`
+- `4.in`
+- `5.in`
+- `6.in`
+- `7.in`
+- `8.in`
 
-For more instances, you can download them using the link provided in the `Instances.txt` file.
+The problem has a total of 14 instances. You can download the remaining instances from the following link:
+[Download Additional Instances](https://drive.google.com/file/d/1NV0LvmUByFR2MLlp7Z9EtEhF_KyLSCxS/view)
 
 ### 2. Coding
 

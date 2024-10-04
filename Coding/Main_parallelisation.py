@@ -1,4 +1,4 @@
-from MCTS_test_parralelisation import MCTS
+from MCTS_parralelisation import MCTS
 
 expansion_policies = ["top_k", "ratio_k"]
 simulation_policies = [
