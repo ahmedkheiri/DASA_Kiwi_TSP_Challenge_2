@@ -12,7 +12,7 @@ ratio_expansion = [0, 0.3, 0.5, 0.7, 1]
 
 instance_number = 1
 root_dir = "Instances"
-instance_path = f"path_to_root/{root_dir}/{instance_number}.in"
+instance_path = f"./{root_dir}/{instance_number}.in"
 
 
 mcts = MCTS(
