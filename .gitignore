@@ -1,0 +1,52 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+*.so
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+build/
+dist/
+*.egg-info/
+*.egg
+*.wheel
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.cache
+
+# Translations
+*.mo
+*.pot
+
+# Logs and databases
+*.log
+*.sqlite3
+
+# LaTeX auxiliary files
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.aux
+*.synctex(busy)
+
+*.pkl
+.DS_Store
+Report/Thesis-main/main.log
