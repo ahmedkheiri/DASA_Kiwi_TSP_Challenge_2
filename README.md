@@ -4,6 +4,8 @@
 
 This repository contains an implementation of a **Monte Carlo Tree Search (MCTS)** to solve the TSP Challenge 2.0 proposed by Kiwi.com in 2018. The main codes can be found in the `Coding` folder, with examples of problem instances located in the `Instances` folder.
 
+Please cite the following paper if you used any of these resources: Arnaud Da Silva and Ahmed Kheiri (in press) A Monte Carlo tree search for the optimisation of flight connections. DASA'24
+
 ## Folder Structure
 
 ### 1. Instances
